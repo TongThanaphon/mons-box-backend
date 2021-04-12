@@ -4,7 +4,7 @@ import { Model } from 'mongoose'
 import { Cron, CronExpression } from '@nestjs/schedule'
 
 import { Monster, MonsterFilter } from './interface'
-import { MonsterActivity, MonsterCreateDto, MonsterUpdateDto } from './dto'
+import { MonsterCareDto, MonsterCreateDto, MonsterUpdateDto } from './dto'
 import { MonsterLevel, MonsterType } from './enum'
 
 @Injectable()
@@ -142,10 +142,24 @@ export class MonsterService {
         })
     }
 
-    async activity(id: string, body: MonsterActivity) {
+    async activity(id: string, body: MonsterCareDto) {
         const monster = await this.findOne(id)
-        const { activity, effect } = body
+        const { activies, experience } = body
         const time = Date.now()
+
+        activies.map(({ status, effect }) => {
+            monster.status[status] = {
+                ...monster.status[status],
+                value: monster.status[status].value + effect,
+                timestamp: time,
+            }
+        })
+
+        monster.status.experience = {
+            ...monster.status.experience,
+            value: monster.status.experience.value + experience,
+            timestamp: time,
+        }
 
         const update = {
             userId: monster.userId,
@@ -156,11 +170,6 @@ export class MonsterService {
             isAlive: monster.isAlive,
             status: {
                 ...monster.status,
-                [activity]: {
-                    ...monster.status[activity],
-                    value: monster.status[activity].value + effect,
-                    timestamp: time,
-                },
             },
         } as MonsterUpdateDto
         await this.update(id, update)

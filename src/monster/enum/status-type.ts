@@ -1,5 +1,5 @@
-export enum ActivityType {
+export enum StatusType {
     hungry = 'hungry',
     cleanliness = 'cleanliness',
-    minigame = 'minigame',
+    healthy = 'healthy',
 }
