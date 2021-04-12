@@ -1,10 +1,30 @@
 import { Module } from '@nestjs/common'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
+import { ConfigModule } from '@nestjs/config'
+import { MongooseModule } from '@nestjs/mongoose'
+import fs from 'fs'
+import path from 'path'
+import dotenv from 'dotenv'
+import { ScheduleModule } from '@nestjs/schedule'
+
+let env = {}
+
+try {
+    const configEnvFilePath = path.resolve(`./.config.${process.env.DEPLOYMENT_ENV}`)
+    const configEnv = dotenv.parse(fs.readFileSync(configEnvFilePath))
+    env = { ...env, ...configEnv }
+} catch (e) {
+    console.log('env error: ', e)
+}
+
+Object.entries(env).forEach((entry: [string, string]) => (process.env[entry[0]] = entry[1]))
 
 @Module({
-    imports: [],
-    controllers: [AppController],
-    providers: [AppService],
+    imports: [
+        MongooseModule.forRoot(process.env.MONGO_DATABASE),
+        ConfigModule.forRoot({ load: [() => env] }),
+        ScheduleModule.forRoot(),
+    ],
+    controllers: [],
+    providers: [],
 })
 export class AppModule {}
