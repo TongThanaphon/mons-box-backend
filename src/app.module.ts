@@ -6,6 +6,8 @@ import path from 'path'
 import dotenv from 'dotenv'
 import { ScheduleModule } from '@nestjs/schedule'
 
+import { MonsterModule } from './monster/monster.module'
+
 let env = {}
 
 try {
@@ -23,6 +25,7 @@ Object.entries(env).forEach((entry: [string, string]) => (process.env[entry[0]] 
         MongooseModule.forRoot(process.env.MONGO_DATABASE),
         ConfigModule.forRoot({ load: [() => env] }),
         ScheduleModule.forRoot(),
+        MonsterModule,
     ],
     controllers: [],
     providers: [],
