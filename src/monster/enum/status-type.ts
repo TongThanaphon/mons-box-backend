@@ -1,5 +1,5 @@
 export enum StatusType {
-    HUNGRY = 'hungry',
-    CLEANLINESS = 'cleanliness',
-    HEALTHY = 'healthy',
+    hungry = 'hungry',
+    cleanliness = 'cleanliness',
+    healthy = 'healthy',
 }

@@ -10,7 +10,7 @@ export class MonsterCareDto {
     @IsArray()
     @Type(() => CareDto)
     @ApiProperty({ type: () => [CareDto] })
-    activies: Care[]
+    activities: Care[]
 
     @IsNumber()
     @IsNotEmpty()
@@ -27,7 +27,6 @@ class CareDto {
 
     @IsNumber()
     @IsNotEmpty()
-    @Min(1)
     @ApiProperty({ description: 'Status effect' })
     effect: number
 }

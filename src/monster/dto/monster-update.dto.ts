@@ -2,9 +2,10 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsString, IsNotEmpty, IsBoolean, ValidateNested, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 
-import { MonsterStatus } from '../interface'
+import { Evolve, MonsterStatus } from '../interface'
 import { MonsterLevel, MonsterType } from '../enum'
 import { MonsterStatusDto } from './monster-status.dto'
+import { EvolveDto } from './evolve.dto'
 
 export class MonsterUpdateDto {
     @IsString()
@@ -41,4 +42,9 @@ export class MonsterUpdateDto {
     @IsNotEmpty()
     @ApiProperty({ description: 'Is mosnter alive' })
     isAlive: true
+
+    @ValidateNested()
+    @Type(() => EvolveDto)
+    @ApiProperty({ description: 'Monster can evolve or not', type: () => EvolveDto })
+    evolve: Evolve
 }

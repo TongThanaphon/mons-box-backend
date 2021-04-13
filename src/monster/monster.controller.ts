@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { ApiTags, ApiQuery, ApiOperation } from '@nestjs/swagger'
 
-import { MonsterCareDto, MonsterCreateDto } from './dto'
+import { MonsterCareDto, MonsterCreateDto, MonsterUpdateDto } from './dto'
 import { MonsterFilter } from './interface'
 import { MonsterService } from './monster.service'
 
@@ -33,5 +33,11 @@ export class MonsterController {
     @ApiOperation({ summary: 'Update status monster from activity' })
     async care(@Param('id') id: string, @Body() body: MonsterCareDto) {
         return this.monsterService.care(id, body)
+    }
+
+    @Put(':id/evolve')
+    @ApiOperation({ summary: 'Evolve monster' })
+    async evolve(@Param('id') id: string, @Body() body: MonsterCreateDto) {
+        return this.monsterService.evolve(id, body)
     }
 }

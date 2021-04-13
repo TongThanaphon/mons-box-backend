@@ -5,4 +5,5 @@ export interface MonsterStatus {
     cleanliness: Status
     healthy: Status
     experience: Status
+    happiness: Status
 }

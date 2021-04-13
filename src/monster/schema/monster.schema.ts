@@ -86,6 +86,23 @@ const MonsterSchemaDefinition: SchemaDefinitionProperty = {
                     },
                 },
             },
+            happiness: {
+                type: {
+                    _id: false,
+                    value: {
+                        type: Number,
+                        require: true,
+                    },
+                    maxValue: {
+                        type: Number,
+                        require: true,
+                    },
+                    timestamp: {
+                        type: Number,
+                        require: true,
+                    },
+                },
+            },
         },
     },
     mType: {
@@ -101,6 +118,23 @@ const MonsterSchemaDefinition: SchemaDefinitionProperty = {
     isAlive: {
         type: Boolean,
         require: true,
+    },
+    evolve: {
+        type: {
+            _id: false,
+            canEvolve: {
+                type: Boolean,
+                require: true,
+            },
+            nextType: {
+                type: String,
+                enum: Object.keys(MonsterType),
+            },
+            nextLevel: {
+                type: String,
+                enum: Object.keys(MonsterLevel),
+            },
+        },
     },
 }
 

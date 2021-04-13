@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import { Cron, CronExpression } from '@nestjs/schedule'
 
-import { Monster, MonsterFilter } from './interface'
+import { Monster, MonsterFilter, MonsterStatus, Care } from './interface'
 import { MonsterCareDto, MonsterCreateDto, MonsterUpdateDto } from './dto'
 import { MonsterLevel, MonsterType } from './enum'
 
@@ -21,6 +21,7 @@ export class MonsterService {
             mType: data.mType,
             level: data.level,
             isAlive: data.isAlive,
+            evolve: data.evolve,
         } as Monster
 
         return response
@@ -68,10 +69,20 @@ export class MonsterService {
                     maxValue: 100,
                     timestamp: time,
                 },
+                happiness: {
+                    value: 10,
+                    maxValue: 20,
+                    timestamp: time,
+                },
             },
             mType: MonsterType.SLIME,
             level: MonsterLevel.BABY,
             isAlive: true,
+            evolve: {
+                canEvolve: false,
+                nextType: MonsterType.SLIME,
+                nextLevel: MonsterLevel.BABY,
+            },
         } as Monster
 
         const create = new this.monsterModel(monster)
@@ -108,6 +119,41 @@ export class MonsterService {
         return response
     }
 
+    getRandomInt() {
+        return (
+            Math.floor(Math.random() * (Number(process.env.MAX_DECREASE_STATUS) - Number(process.env.MIN_DECREASE_STATUS) + 1)) +
+            Number(process.env.MIN_DECREASE_STATUS)
+        )
+    }
+
+    decreaseStatusValue(status: MonsterStatus) {
+        let happyValue = status.happiness.value
+        const hungryValue = status.hungry.value - this.getRandomInt()
+        const cleanValue = status.cleanliness.value - this.getRandomInt()
+        const healthValue = status.healthy.value - this.getRandomInt()
+
+        if (hungryValue < Number(process.env.FLOOR_1_STATUS)) {
+            happyValue -= 1
+        } else if (hungryValue < Number(process.env.FLOOR_2_STATUS)) {
+            happyValue -= 2
+        } else if (cleanValue < Number(process.env.FLOOR_1_STATUS)) {
+            happyValue -= 1
+        } else if (cleanValue < Number(process.env.FLOOR_2_STATUS)) {
+            happyValue -= 2
+        } else if (healthValue < Number(process.env.FLOOR_1_STATUS)) {
+            happyValue -= 1
+        } else if (healthValue < Number(process.env.FLOOR_2_STATUS)) {
+            happyValue -= 2
+        }
+
+        return {
+            hungryValue,
+            cleanValue,
+            healthValue,
+            happyValue,
+        }
+    }
+
     @Cron(CronExpression.EVERY_10_MINUTES)
     async autoUpdateStatus() {
         const { size, data } = await this.list()
@@ -115,6 +161,8 @@ export class MonsterService {
             return
         }
         data.map(async (monster) => {
+            const { hungryValue, cleanValue, healthValue, happyValue } = this.decreaseStatusValue(monster.status)
+
             const body = {
                 userId: monster.userId,
                 name: monster.name,
@@ -122,43 +170,124 @@ export class MonsterService {
                 status: {
                     hungry: {
                         ...monster.status.hungry,
-                        value: monster.status.hungry.value - 5,
+                        value: hungryValue,
                     },
                     cleanliness: {
                         ...monster.status.cleanliness,
-                        value: monster.status.cleanliness.value - 5,
+                        value: cleanValue,
                     },
                     healthy: {
                         ...monster.status.healthy,
-                        value: monster.status.healthy.value - 5,
+                        value: healthValue,
                     },
                     experience: monster.status.experience,
+                    happiness: {
+                        ...monster.status.happiness,
+                        value: happyValue,
+                    },
                 },
                 mType: monster.mType,
                 level: monster.level,
                 isAlive: monster.isAlive,
             } as MonsterUpdateDto
+
             await this.update(monster.id, body)
         })
     }
 
-    async care(id: string, body: MonsterCareDto) {
-        const monster = await this.findOne(id)
-        const { activies, experience } = body
-        const time = Date.now()
+    careHappyStatus(activities: Care[], mStatus: MonsterStatus, time: number) {
+        let happy = mStatus.happiness.value
 
-        activies.map(({ status, effect }) => {
-            monster.status[status] = {
-                ...monster.status[status],
-                value: monster.status[status].value + effect,
+        activities.map(({ status, effect }) => {
+            let value = mStatus[status].value
+            const max = mStatus[status].maxValue
+
+            if (value < Number(process.env.FLOOR_1_STATUS) || value < Number(process.env.FLOOR_2_STATUS)) {
+                happy += 1
+            }
+
+            value += effect
+
+            if (value > max && value >= Number(process.env.OVER_LIMIT_STATUS)) {
+                happy -= 1
+                value = max
+            } else {
+                happy += 2
+            }
+
+            mStatus[status] = {
+                ...mStatus[status],
+                value: value,
                 timestamp: time,
             }
         })
 
-        monster.status.experience = {
-            ...monster.status.experience,
-            value: monster.status.experience.value + experience,
+        mStatus.happiness = {
+            ...mStatus.happiness,
+            value: happy,
             timestamp: time,
+        }
+    }
+
+    handleExperiencePoint(point: number, currLvl: MonsterLevel, currType: MonsterType, status: MonsterStatus, time: number) {
+        const currExp = status.experience.value
+        const maxExp = status.experience.maxValue
+        const happy = status.happiness.value
+        let experience = currExp + point
+        const length = Object.keys(MonsterLevel).length - 1
+        const condition = currLvl !== Object.keys(MonsterLevel)[length]
+        let nextType = currType
+        let nextLevel
+        let canEvolve = false
+
+        if (experience >= maxExp) {
+            experience = maxExp
+
+            if (currType === MonsterType.SLIME) {
+                if (happy > 18) {
+                    nextType = MonsterType.WATER
+                } else if (happy > 18) {
+                    nextType = MonsterType.TERRESTRIAL
+                } else {
+                    nextType = MonsterType.POULTRY
+                }
+            }
+
+            const index = Object.keys(MonsterLevel).indexOf(currLvl)
+            nextLevel = condition ? Object.keys(MonsterLevel)[index + 1] : currLvl
+            canEvolve = true
+        }
+
+        status.experience = {
+            ...status.experience,
+            value: experience,
+            timestamp: time,
+        }
+
+        return {
+            canEvolve,
+            nextType,
+            nextLevel,
+        }
+    }
+
+    async care(id: string, body: MonsterCareDto) {
+        const monster = await this.findOne(id)
+        const { activities, experience } = body
+        const time = Date.now()
+        this.careHappyStatus(activities, monster.status, time)
+        const { canEvolve, nextLevel, nextType } = this.handleExperiencePoint(
+            experience,
+            monster.level,
+            monster.mType,
+            monster.status,
+            time,
+        )
+
+        monster.evolve = {
+            canEvolve,
+            nextType,
+            nextLevel,
         }
 
         const update = {
@@ -171,7 +300,42 @@ export class MonsterService {
             status: {
                 ...monster.status,
             },
+            evolve: monster.evolve,
         } as MonsterUpdateDto
+
+        await this.update(id, update)
+    }
+
+    async evolve(id: string, body: MonsterCreateDto) {
+        const monster = await this.findOne(id)
+        const mType = monster.evolve.nextType
+        const level = monster.evolve.nextLevel
+        const canEvolve = monster.evolve.canEvolve
+        const time = Date.now()
+
+        if (!canEvolve) return
+
+        const update = {
+            userId: monster.userId,
+            name: monster.name,
+            asset: body.asset,
+            mType,
+            level,
+            isAlive: monster.isAlive,
+            status: {
+                ...monster.status,
+                experience: {
+                    value: 0,
+                    maxValue: 100,
+                    timestamp: time,
+                },
+            },
+            evolve: {
+                ...monster.evolve,
+                canEvolve: false,
+            },
+        } as MonsterUpdateDto
+
         await this.update(id, update)
     }
 }
