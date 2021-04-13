@@ -31,7 +31,7 @@ export class MonsterController {
 
     @Put(':id/care')
     @ApiOperation({ summary: 'Update status monster from activity' })
-    async activity(@Param('id') id: string, @Body() body: MonsterCareDto) {
-        return this.monsterService.activity(id, body)
+    async care(@Param('id') id: string, @Body() body: MonsterCareDto) {
+        return this.monsterService.care(id, body)
     }
 }

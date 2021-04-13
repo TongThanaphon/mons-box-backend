@@ -142,7 +142,7 @@ export class MonsterService {
         })
     }
 
-    async activity(id: string, body: MonsterCareDto) {
+    async care(id: string, body: MonsterCareDto) {
         const monster = await this.findOne(id)
         const { activies, experience } = body
         const time = Date.now()
