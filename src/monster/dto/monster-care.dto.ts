@@ -19,7 +19,7 @@ export class MonsterCareDto {
     experience: number
 }
 
-class CareDto {
+export class CareDto {
     @IsNotEmpty()
     @IsEnum(Object.keys(StatusType))
     @ApiProperty({ enum: StatusType, description: 'Status type' })

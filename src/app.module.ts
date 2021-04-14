@@ -8,6 +8,10 @@ import { ScheduleModule } from '@nestjs/schedule'
 
 import { MonsterModule } from './monster/monster.module'
 import { WalletModule } from './wallet/wallet.module'
+import { ItemModule } from './item/item.module'
+import { InventoryModule } from './inventory/inventory.module'
+import { MultiModule } from './multi/multi.module'
+import { UserModule } from './user/user.module'
 
 let env = {}
 
@@ -28,6 +32,10 @@ Object.entries(env).forEach((entry: [string, string]) => (process.env[entry[0]] 
         ScheduleModule.forRoot(),
         MonsterModule,
         WalletModule,
+        ItemModule,
+        InventoryModule,
+        MultiModule,
+        UserModule,
     ],
     controllers: [],
     providers: [],

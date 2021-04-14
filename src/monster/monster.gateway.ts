@@ -28,7 +28,7 @@ export class MonsterGateway implements OnGatewayInit {
 
             setInterval(() => {
                 client.emit('monsterStatusToClient', response)
-            }, 60000)
+            }, Number(process.env.MONSTER_GATEWAY_TIME))
         }
     }
 
