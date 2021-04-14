@@ -7,6 +7,7 @@ import dotenv from 'dotenv'
 import { ScheduleModule } from '@nestjs/schedule'
 
 import { MonsterModule } from './monster/monster.module'
+import { WalletModule } from './wallet/wallet.module'
 
 let env = {}
 
@@ -26,6 +27,7 @@ Object.entries(env).forEach((entry: [string, string]) => (process.env[entry[0]] 
         ConfigModule.forRoot({ load: [() => env] }),
         ScheduleModule.forRoot(),
         MonsterModule,
+        WalletModule,
     ],
     controllers: [],
     providers: [],

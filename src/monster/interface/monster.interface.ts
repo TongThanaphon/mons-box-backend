@@ -12,6 +12,6 @@ export interface Monster extends Document {
     status: MonsterStatus
     mType: MonsterType
     level: MonsterLevel
-    isAlive: true
+    isAlive: boolean
     evolve: Evolve
 }
