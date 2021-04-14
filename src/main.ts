@@ -10,6 +10,7 @@ async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule)
 
     app.useGlobalPipes(new ValidationPipe({ transform: true }))
+    app.useStaticAssets(path.join(__dirname, '..', 'static'))
 
     const options = new DocumentBuilder()
         .setTitle("Mon's Box API")
