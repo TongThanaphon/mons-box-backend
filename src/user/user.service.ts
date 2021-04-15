@@ -53,8 +53,8 @@ export class UserService {
                 id,
                 username,
             },
-            'SECRET',
-            { expiresIn: '7d' },
+            process.env.MONS_BOX_SECRET_KEY,
+            { expiresIn: process.env.JWT_EXPIRES },
         )
     }
 
@@ -87,7 +87,7 @@ export class UserService {
             throw new HttpException('Username already exists', HttpStatus.BAD_REQUEST)
         }
 
-        const hash = await bcrypt.hash(password, 10)
+        const hash = await bcrypt.hash(password, Number(process.env.HASH_SALT))
 
         const create = new this.userModel({ username, password: hash })
         const save = await create.save()
