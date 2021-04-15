@@ -93,8 +93,8 @@ export class UserService {
         const save = await create.save()
         const response = this.responseObject(save)
 
-        // await this.walletService.create({ userId: response.id })
-        // await this.inventoryService.create({ userId: response.id, assets: [] })
+        await this.walletService.create({ userId: response.id })
+        await this.inventoryService.create({ userId: response.id, assets: [] })
 
         return response
     }
