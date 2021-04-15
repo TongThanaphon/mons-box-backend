@@ -1,6 +1,8 @@
-import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common'
+import { Injectable, NotFoundException, Inject, forwardRef, HttpException, HttpStatus } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
+import * as bcrypt from 'bcryptjs'
+import * as jwt from 'jsonwebtoken'
 
 import { User } from './interface'
 import { UserDto } from './dto'
@@ -33,17 +35,61 @@ export class UserService {
     }
 
     responseObject(data: User) {
+        const token = this.getToken(data)
         const response = {
             id: data.id,
-            name: data.name,
-            email: data.email,
+            username: data.username,
+            token: token,
         } as User
 
         return response
     }
 
-    async create(body: UserDto) {
-        const create = new this.userModel(body)
+    getToken(data: User) {
+        const { id, username } = data
+
+        return jwt.sign(
+            {
+                id,
+                username,
+            },
+            process.env.MONS_BOX_SECRET_KEY,
+            { expiresIn: process.env.JWT_EXPIRES },
+        )
+    }
+
+    async login(body: UserDto) {
+        const { username, password } = body
+        let user: User
+        let isPassword
+
+        try {
+            user = await this.userModel.findOne({ username }).exec()
+            isPassword = await bcrypt.compare(password, user.password)
+        } catch (e) {
+            throw new NotFoundException('Username does not exits')
+        }
+
+        if (!user || !isPassword) {
+            throw new HttpException('Invalid username/password', HttpStatus.BAD_REQUEST)
+        }
+
+        const response = this.responseObject(user)
+
+        return response
+    }
+
+    async register(body: UserDto) {
+        const { username, password } = body
+        const user = await this.userModel.findOne({ username }).exec()
+
+        if (user) {
+            throw new HttpException('Username already exists', HttpStatus.BAD_REQUEST)
+        }
+
+        const hash = await bcrypt.hash(password, Number(process.env.HASH_SALT))
+
+        const create = new this.userModel({ username, password: hash })
         const save = await create.save()
         const response = this.responseObject(save)
 
@@ -53,20 +99,20 @@ export class UserService {
         return response
     }
 
-    async get(id: string) {
-        const user = await this.findOne(id)
-        const response = this.responseObject(user)
+    // async get(id: string) {
+    //     const user = await this.findOne(id)
+    //     const response = this.responseObject(user)
 
-        return response
-    }
+    //     return response
+    // }
 
-    async update(id: string, body: UserDto) {
-        await this.findOne(id)
-        await this.userModel.updateOne({ _id: id }, { ...body }).exec()
+    // async update(id: string, body: UserDto) {
+    //     await this.findOne(id)
+    //     await this.userModel.updateOne({ _id: id }, { ...body }).exec()
 
-        const user = await this.findOne(id)
-        const response = this.responseObject(user)
+    //     const user = await this.findOne(id)
+    //     const response = this.responseObject(user)
 
-        return response
-    }
+    //     return response
+    // }
 }
