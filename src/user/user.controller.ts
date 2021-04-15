@@ -8,21 +8,21 @@ import { UserService } from './user.service'
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    @Post()
-    @ApiOperation({ summary: 'Create user' })
-    async create(@Body() body: UserDto) {
-        return this.userService.create(body)
+    @Post('login')
+    @ApiOperation({ summary: 'User login' })
+    async login(@Body() body: UserDto) {
+        return this.userService.login(body)
     }
 
-    @Get(':id')
-    @ApiOperation({ summary: 'Get user by id' })
-    async get(@Param('id') id: string) {
-        return this.userService.get(id)
+    @Post('register')
+    @ApiOperation({ summary: 'User register' })
+    async register(@Body() body: UserDto) {
+        return this.userService.register(body)
     }
 
-    @Put(':id')
-    @ApiOperation({ summary: 'Update user' })
-    async update(@Param('id') id: string, @Body() body: UserDto) {
-        return this.userService.update(id, body)
-    }
+    // @Get(':id')
+    // @ApiOperation({ summary: 'Get user by id' })
+    // async get(@Param('id') id: string) {
+    //     return this.userService.get(id)
+    // }
 }

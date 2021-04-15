@@ -1,13 +1,13 @@
 import { Schema, SchemaDefinitionProperty } from 'mongoose'
 
 const UserSchemaDefinition: SchemaDefinitionProperty = {
-    name: {
+    username: {
         type: String,
-        required: true,
+        require: true,
     },
-    email: {
+    password: {
         type: String,
-        required: true,
+        require: true,
     },
 }
 
