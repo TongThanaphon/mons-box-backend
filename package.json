@@ -18,8 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "gcd:build": "gcloud builds submit --tag gcr.io/monsbox/monsbox-api",
-    "gcd:deploy": "gcloud run deploy --image gcr.io/monsbox/monsbox-api --platform managed"
+    "gcd:build": "gcloud builds submit --tag gcr.io/monsbox-backend/monsbox-backend",
+    "gcd:deploy": "gcloud run deploy --image gcr.io/monsbox-backend/monsbox-backend --platform managed"
   },
   "dependencies": {
     "@nestjs/common": "^7.5.1",
