@@ -53,7 +53,7 @@ export class UserService {
                 id,
                 username,
             },
-            process.env.MONS_BOX_SECRET_KEY,
+            process.env.SECRET_KEY,
             { expiresIn: process.env.JWT_EXPIRES },
         )
     }
