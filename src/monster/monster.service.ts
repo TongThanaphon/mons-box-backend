@@ -127,24 +127,29 @@ export class MonsterService {
     }
 
     decreaseStatusValue(status: MonsterStatus) {
-        let happyValue = status.happiness.value
-        const hungryValue = status.hungry.value - this.getRandomInt()
-        const cleanValue = status.cleanliness.value - this.getRandomInt()
-        const healthValue = status.healthy.value - this.getRandomInt()
+        let haValue = status.happiness.value
+        const huValue = status.hungry.value - this.getRandomInt()
+        const hungryValue = huValue < 0 ? 0 : huValue
+        const cValue = status.cleanliness.value - this.getRandomInt()
+        const cleanValue = cValue < 0 ? 0 : cValue
+        const heValue = status.healthy.value - this.getRandomInt()
+        const healthValue = heValue < 0 ? 0 : heValue
 
         if (hungryValue < Number(process.env.FLOOR_1_STATUS)) {
-            happyValue -= 1
+            haValue -= 1
         } else if (hungryValue < Number(process.env.FLOOR_2_STATUS)) {
-            happyValue -= 2
+            haValue -= 2
         } else if (cleanValue < Number(process.env.FLOOR_1_STATUS)) {
-            happyValue -= 1
+            haValue -= 1
         } else if (cleanValue < Number(process.env.FLOOR_2_STATUS)) {
-            happyValue -= 2
+            haValue -= 2
         } else if (healthValue < Number(process.env.FLOOR_1_STATUS)) {
-            happyValue -= 1
+            haValue -= 1
         } else if (healthValue < Number(process.env.FLOOR_2_STATUS)) {
-            happyValue -= 2
+            haValue -= 2
         }
+
+        const happyValue = haValue < 0 ? 0 : haValue
 
         return {
             hungryValue,
@@ -199,32 +204,44 @@ export class MonsterService {
         let happy = mStatus.happiness.value
 
         activities.map(({ status, effect }) => {
-            let value = mStatus[status].value
+            let value = mStatus[status].value + effect
             const max = mStatus[status].maxValue
 
-            if (value < Number(process.env.FLOOR_1_STATUS) || value < Number(process.env.FLOOR_2_STATUS)) {
+            if (value < Number(process.env.FLOOR_1_STATUS)) {
                 happy += 1
+            } else if (value < Number(process.env.FLOOR_2_STATUS)) {
+                happy += 2
             }
-
-            value += effect
 
             if (value > max && value >= Number(process.env.OVER_LIMIT_STATUS)) {
                 happy -= 1
                 value = max
-            } else {
-                happy += 2
             }
+
+            // old version
+            // if (value < Number(process.env.FLOOR_1_STATUS) || value < Number(process.env.FLOOR_2_STATUS)) {
+            //     happy += 1
+            // }
+
+            // value += effect
+
+            // if (value > max && value >= Number(process.env.OVER_LIMIT_STATUS)) {
+            //     happy -= 1
+            //     value = max
+            // } else {
+            //     happy += 2
+            // }
 
             mStatus[status] = {
                 ...mStatus[status],
-                value: value,
+                value: value < 0 ? 0 : value,
                 timestamp: time,
             }
         })
 
         mStatus.happiness = {
             ...mStatus.happiness,
-            value: happy,
+            value: happy < 0 ? 0 : happy,
             timestamp: time,
         }
     }
