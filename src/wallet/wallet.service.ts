@@ -40,7 +40,7 @@ export class WalletService {
         const currencies: Currency[] = [
             {
                 cType: CurrencyType.COIN,
-                value: 100,
+                value: 10000,
             },
             {
                 cType: CurrencyType.DIAMOND,
