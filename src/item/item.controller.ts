@@ -27,7 +27,7 @@ export class ItemController {
         return this.itemService.get(id)
     }
 
-    @Put(':id')
+    @Post(':id')
     @ApiOperation({ summary: 'Update item' })
     async update(@Param('id') id: string, @Body() body: ItemDto) {
         return this.itemService.update(id, body)

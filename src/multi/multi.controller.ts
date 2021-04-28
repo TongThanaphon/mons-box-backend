@@ -24,7 +24,7 @@ export class MultiController {
         return this.multiService.list(filter)
     }
 
-    @Put(':id')
+    @Post(':id')
     @ApiOperation({ summary: 'Update multi' })
     async update(@Param('id') id: string, @Body() body: MultiDto) {
         return this.multiService.update(id, body)

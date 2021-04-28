@@ -28,7 +28,7 @@ export class WalletController {
         return this.walletService.get(id)
     }
 
-    @Put('id')
+    @Post(':id')
     @ApiOperation({ summary: 'Update wallet' })
     async update(@Param('id') id: string, @Body() body: WalletUpdateDto) {
         return this.walletService.update(id, body)

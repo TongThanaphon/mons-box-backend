@@ -29,13 +29,13 @@ export class MonsterController {
         return this.monsterService.get(id)
     }
 
-    @Put(':id/care')
+    @Post(':id/care')
     @ApiOperation({ summary: 'Update status monster from activity' })
     async care(@Param('id') id: string, @Body() body: MonsterCareDto) {
         return this.monsterService.care(id, body)
     }
 
-    @Put(':id/evolve')
+    @Post(':id/evolve')
     @ApiOperation({ summary: 'Evolve monster' })
     async evolve(@Param('id') id: string, @Body() body: MonsterCreateDto) {
         return this.monsterService.evolve(id, body)

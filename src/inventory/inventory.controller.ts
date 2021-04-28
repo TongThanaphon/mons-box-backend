@@ -29,7 +29,7 @@ export class InventoryController {
         return this.inventoryService.get(id)
     }
 
-    @Put(':id')
+    @Post(':id')
     @ApiOperation({ summary: 'Update inventory' })
     async update(@Param('id') id: string, @Body() body: InventoryDto) {
         return this.inventoryService.update(id, body)
