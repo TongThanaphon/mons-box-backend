@@ -116,8 +116,9 @@ const MonsterSchemaDefinition: SchemaDefinitionProperty = {
                     },
                     timestamp: {
                         type: Number,
-                        require: true
-                    }
+                        require: true,
+                    },
+                },
             },
         },
     },
