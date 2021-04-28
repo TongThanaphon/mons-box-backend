@@ -6,4 +6,5 @@ export interface MonsterStatus {
     healthy: Status
     experience: Status
     happiness: Status
+    hp: Status
 }

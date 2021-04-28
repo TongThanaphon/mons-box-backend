@@ -30,4 +30,9 @@ export class MonsterStatusDto {
     @Type(() => StatusDto)
     @ApiProperty({ type: () => StatusDto })
     happiness: Status
+
+    @ValidateNested()
+    @Type(() => StatusDto)
+    @ApiProperty({ type: () => StatusDto })
+    hp: Status
 }
