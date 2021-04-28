@@ -6,11 +6,20 @@ import { StatusType } from '../enum'
 import { Care } from '../interface'
 
 export class MonsterCareDto {
-    @ValidateNested()
-    @IsArray()
-    @Type(() => CareDto)
-    @ApiProperty({ type: () => [CareDto] })
-    activities: Care[]
+    @IsNumber()
+    @IsNotEmpty()
+    @ApiProperty({ description: 'Hungry' })
+    hungry: number
+
+    @IsNumber()
+    @IsNotEmpty()
+    @ApiProperty({ description: 'Cleanliness' })
+    cleanliness: number
+
+    @IsNumber()
+    @IsNotEmpty()
+    @ApiProperty({ description: 'Healthy' })
+    healthy: number
 
     @IsNumber()
     @IsNotEmpty()

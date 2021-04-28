@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 
-import { ItemBuyDto, ItemDto } from './dto'
+import { ItemBuyDto, ItemDto, ItemUseDto } from './dto'
 import { ItemService } from './item.service'
 
 @ApiTags('Item')
@@ -27,14 +27,21 @@ export class ItemController {
         return this.itemService.get(id)
     }
 
-    @Post(':id')
-    @ApiOperation({ summary: 'Update item' })
-    async update(@Param('id') id: string, @Body() body: ItemDto) {
-        return this.itemService.update(id, body)
-    }
+    // @Post(':id')
+    // @ApiOperation({ summary: 'Update item' })
+    // async update(@Param('id') id: string, @Body() body: ItemDto) {
+    //     return this.itemService.update(id, body)
+    // }
 
     @Post('/buy')
+    @ApiOperation({ summary: 'Buy item' })
     async buy(@Body() body: ItemBuyDto) {
         return this.itemService.buy(body)
+    }
+
+    @Post('/use')
+    @ApiOperation({ summary: 'Use item' })
+    async use(@Body() body: ItemUseDto) {
+        return this.itemService.use(body)
     }
 }

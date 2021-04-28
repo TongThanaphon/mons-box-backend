@@ -5,7 +5,7 @@ import { Cron, CronExpression } from '@nestjs/schedule'
 
 import { Monster, MonsterFilter, MonsterStatus, Care } from './interface'
 import { MonsterCareDto, MonsterCreateDto, MonsterUpdateDto } from './dto'
-import { MonsterLevel, MonsterType } from './enum'
+import { MonsterLevel, MonsterType, StatusType } from './enum'
 
 @Injectable()
 export class MonsterService {
@@ -290,8 +290,22 @@ export class MonsterService {
 
     async care(id: string, body: MonsterCareDto) {
         const monster = await this.findOne(id)
-        const { activities, experience } = body
+        const { healthy, hungry, cleanliness, experience } = body
         const time = Date.now()
+        const activities = [
+            {
+                status: StatusType.hungry,
+                effect: hungry,
+            },
+            {
+                status: StatusType.cleanliness,
+                effect: cleanliness,
+            },
+            {
+                status: StatusType.healthy,
+                effect: healthy,
+            },
+        ] as Care[]
         this.careHappyStatus(activities, monster.status, time)
         const { canEvolve, nextLevel, nextType } = this.handleExperiencePoint(
             experience,
