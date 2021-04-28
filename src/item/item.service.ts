@@ -4,7 +4,7 @@ import { Model } from 'mongoose'
 
 import { InventoryService } from '../inventory/invertory.service'
 import { WalletService } from '../wallet/wallet.service'
-import { ItemBuyDto, ItemDto } from './dto'
+import { ItemBuyDto, ItemDto, ItemUseDto } from './dto'
 import { ItemStatus } from './enum'
 import { Item } from './interface'
 
@@ -153,5 +153,49 @@ export class ItemService {
         await this.invetoryService.update(inventoryData.id, updateInventoryObject)
 
         return updateInventoryObject
+    }
+
+    async use(body: ItemUseDto) {
+        const item = await this.findOne(body.itemId)
+
+        if (body.quantity > item.quantity) {
+            throw new BadRequestException('Item quantity not enought')
+        }
+
+        const updateItemObject: ItemDto = {
+            name: item.name,
+            asset: item.asset,
+            iType: item.iType,
+            status: item.status,
+            price: item.price,
+            quantity: item.quantity - body.quantity,
+            owner: item.owner,
+            effect: item.effect,
+        }
+
+        const inventory = await this.invetoryService.list({ userId: body.userId })
+        const inventoryData = inventory.data[0]
+
+        inventoryData.assets.find((item) => {
+            if (item.itemId === body.itemId) {
+                item.quantity -= body.quantity
+            }
+
+            return item
+        })
+
+        let updateInv
+
+        if (updateItemObject.quantity <= 0) {
+            updateInv = inventoryData.assets.filter((item) => item.quantity > 0)
+        }
+
+        const updateInventoryObject = {
+            userId: updateInv.userId,
+            assets: updateInv.assets,
+        }
+
+        await this.update(body.itemId, updateItemObject)
+        await this.invetoryService.update(inventoryData.id, updateInventoryObject)
     }
 }
