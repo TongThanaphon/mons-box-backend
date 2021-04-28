@@ -127,6 +127,7 @@ export class MonsterService {
     }
 
     decreaseStatusValue(status: MonsterStatus) {
+        let hpValue = status.hp.value
         let haValue = status.happiness.value
         const huValue = status.hungry.value - this.getRandomInt()
         const hungryValue = huValue < 0 ? 0 : huValue
@@ -151,11 +152,16 @@ export class MonsterService {
 
         const happyValue = haValue < 0 ? 0 : haValue
 
+        if (hungryValue === 0 || cleanValue === 0 || healthValue === 0) {
+            hpValue -= 10
+        }
+
         return {
             hungryValue,
             cleanValue,
             healthValue,
             happyValue,
+            hpValue,
         }
     }
 
@@ -166,7 +172,11 @@ export class MonsterService {
             return
         }
         data.map(async (monster) => {
-            const { hungryValue, cleanValue, healthValue, happyValue } = this.decreaseStatusValue(monster.status)
+            if (!monster.isAlive) {
+                return
+            }
+
+            const { hungryValue, cleanValue, healthValue, happyValue, hpValue } = this.decreaseStatusValue(monster.status)
 
             const body = {
                 userId: monster.userId,
@@ -190,10 +200,14 @@ export class MonsterService {
                         ...monster.status.happiness,
                         value: happyValue,
                     },
+                    hp: {
+                        ...monster.status.hp,
+                        value: hpValue,
+                    },
                 },
                 mType: monster.mType,
                 level: monster.level,
-                isAlive: monster.isAlive,
+                isAlive: hpValue <= 0 ? false : monster.isAlive,
             } as MonsterUpdateDto
 
             await this.update(monster.id, body)

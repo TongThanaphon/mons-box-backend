@@ -103,6 +103,22 @@ const MonsterSchemaDefinition: SchemaDefinitionProperty = {
                     },
                 },
             },
+            hp: {
+                type: {
+                    _id: false,
+                    value: {
+                        type: Number,
+                        require: true,
+                    },
+                    maxValue: {
+                        type: Number,
+                        require: true,
+                    },
+                    timestamp: {
+                        type: Number,
+                        require: true
+                    }
+            },
         },
     },
     mType: {
