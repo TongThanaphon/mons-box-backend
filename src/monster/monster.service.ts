@@ -74,6 +74,11 @@ export class MonsterService {
                     maxValue: 20,
                     timestamp: time,
                 },
+                hp: {
+                    value: 100,
+                    maxValue: 100,
+                    timestamp: time,
+                },
             },
             mType: MonsterType.SLIME,
             level: MonsterLevel.BABY,
